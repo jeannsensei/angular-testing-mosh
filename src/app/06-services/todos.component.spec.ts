@@ -15,6 +15,7 @@ describe('TodosComponent', () => {
     component = new TodosComponent(service);
   });
 
+  // https://stackoverflow.com/questions/66941972/argument-of-type-null-is-not-assignable-to-parameter-of-type-httpclient-on-a
   it('should set todos property with the items returned from the server', () => {
     let todos = [1, 2, 3];
 
