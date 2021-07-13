@@ -1,6 +1,38 @@
+import { TodoMockService } from './mock/todo-mock.service';
 import { TodosComponent } from './todos.component';
 import { TodoService } from './todo.service';
-import { from, Observable, of, throwError } from 'rxjs';
+import { from, of, throwError } from 'rxjs';
+import { TestBed, getTestBed } from '@angular/core/testing';
+import {
+  HttpClientTestingModule,
+  HttpTestingController,
+} from '@angular/common/http/testing';
+
+const dummyUserListResponse = {
+  data: [
+    {
+      id: 1,
+      first_name: 'George',
+      last_name: 'Bluth',
+      avatar:
+        'https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg',
+    },
+    {
+      id: 2,
+      first_name: 'Janet',
+      last_name: 'Weaver',
+      avatar:
+        'https://s3.amazonaws.com/uifaces/faces/twitter/josephstein/128.jpg',
+    },
+    {
+      id: 3,
+      first_name: 'Emma',
+      last_name: 'Wong',
+      avatar:
+        'https://s3.amazonaws.com/uifaces/faces/twitter/olegpogodaev/128.jpg',
+    },
+  ],
+};
 
 describe('TodosComponent', () => {
   let component: TodosComponent;
@@ -72,5 +104,34 @@ describe('TodosComponent', () => {
     component.delete(1);
 
     expect(spy).not.toHaveBeenCalled();
+  });
+});
+
+describe('TodoService', () => {
+  let injector: TestBed;
+  let service: TodoMockService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [TodoMockService],
+    });
+
+    injector = getTestBed();
+    service = injector.inject(TodoMockService);
+    httpMock = injector.inject(HttpTestingController);
+    // https://www.thecodebuzz.com/angular-unit-test-and-mock-httpclient-get-request/
+    // https://github.com/shashankvivek/angular-karma-playground/blob/master/karma-project/src/app/students/students.service.spec.ts
+  });
+
+  it('getUserList() should return data', () => {
+    service.getUserList().subscribe((res) => {
+      expect(res).toEqual(dummyUserListResponse);
+    });
+
+    const req = httpMock.expectOne('https://reqres.in/api/users');
+    expect(req.request.method).toBe('GET');
+    req.flush(dummyUserListResponse);
   });
 });
